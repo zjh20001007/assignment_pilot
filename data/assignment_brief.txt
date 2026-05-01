@@ -1,0 +1,54 @@
+CA6123 Agentic AI and Applications - Group Project Brief
+
+Project Goal:
+Design and demonstrate an Agentic AI application for a realistic multi-step reasoning scenario.
+
+The application should demonstrate the following Agentic AI loop:
+Perceive, Reason, Action, Learn.
+
+The video should cover the following sections:
+Overview, Perceive, Reason, Action, Learn, AI-Human Interaction, Responsible Agentic AI, Conclusions.
+
+Video Requirements:
+The submission must be a single continuous video.
+The video length must not exceed 12 minutes.
+All team members should appear in the video and use their own voices.
+Slides may be used, but they should be clear and not overcrowded.
+
+Code Submission:
+Submit either a Jupyter Notebook file or a zipped Python source code folder.
+The code should be clear, readable, well-commented, and reproducible.
+
+Grading Criteria:
+Technical Competency: 25
+Correctness & Clarity: 25
+Responsible Agentic AI: 25
+Novelty and Originality: 10
+Bonus Features: 15
+
+Deadlines:
+Assignment video and code submission: 2026-05-11 12:00
+Peer evaluation: 2026-05-15 12:00
+
+Bonus Features:
+Agentic RAG
+Agent Observability
+Agent Evaluation
+MCP
+A2A
+Prompt Injection Filtering
+PII Masking
+Reinforcement Learning
+
+Responsible AI Requirements:
+The system should include human supervision, safety guardrails, logging, performance tracking, and evaluation.
+Advanced guardrails may include prompt injection filtering and personal information masking.
+
+Originality Requirements:
+The project must be original.
+AI tools may be used, but their usage should be clearly declared in the final video.
+Students must understand and be able to explain the submitted work.
+
+Peer Evaluation:
+All members must complete peer evaluation.
+Peer evaluation includes teamwork, quantity of work, and quality of work.

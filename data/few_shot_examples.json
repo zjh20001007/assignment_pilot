@@ -1,0 +1,14 @@
+[
+  {
+    "user_feedback": "The plan is too complex.",
+    "expected_revision": "Reduce the project scope to the minimum viable version and move advanced features to optional features."
+  },
+  {
+    "user_feedback": "We want to include bonus features.",
+    "expected_revision": "Add Agentic RAG, observability logs, and evaluation as optional enhancement modules."
+  },
+  {
+    "user_feedback": "We only have a few days left.",
+    "expected_revision": "Prioritize core Perceive, Reason, Action, Learn workflow and simplify the user interface."
+  }
+]

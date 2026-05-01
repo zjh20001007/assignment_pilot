@@ -1,0 +1,53 @@
+Assignment Brief - Generative AI Case Study
+
+Overview
+You will work individually or in a group of 4-6 to research, analyse, and present a recent real-world case or incident involving a Generative AI-powered system.
+
+Your chosen case may cover these issues:
+- Ethical considerations
+- Risk mitigation and management
+- Governance and compliance
+
+This project makes up 20% of your total course grade. Deadline is on 22 March 2026, 1159pm.
+
+Your Task
+
+1. Select a Recent GenAI Case Study
+- Pick a real-world incident from news, research, or industry reports.
+- Explain how and why you chose it.
+- Link it clearly to concepts and principles from our course.
+
+2. Analyse the Case
+- Discuss what happened, why it happened, and its implications.
+- Evaluate the impact: on the organisation, society, economy, and environment.
+- Investigate the root cause(s) behind the incident.
+- Examine the response from the organisation/agency involved:
+  - Was it resolved? How?
+  - Was the remediation effective in preventing future issues?
+  - If not, propose a better strategy, explaining why it could work.
+
+3. Slides
+- Submit a deck of slides about your case study. There should be 8-10 slides, excluding title slide and content slide if any, and should reflect the details discussed above. Submit via the NTUlearn portal.
+
+Assessment Criteria
+Your assignment will be graded as follows:
+
+1. Case Description - 20%
+What We're Looking For:
+Clear, detailed description; strong rationale for case selection; strong connection to course concepts.
+
+2. Impact Analysis - 25%
+What We're Looking For:
+Depth and breadth of analysis on the magnitude and severity of the incident's impact across multiple domains.
+
+3. Root Cause Analysis - 25%
+What We're Looking For:
+Insightful, thorough explanation of why the issues occurred.
+
+4. Organisational Response or Resolution - 20%
+What We're Looking For:
+Detailed evaluation of the response; effectiveness of solutions; thoughtful alternative strategies.
+
+5. Presentation Structure - 10%
+What We're Looking For:
+Organised, engaging, well-structured, with clear communication and insightful conclusions.
