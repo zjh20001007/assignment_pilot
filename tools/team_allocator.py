@@ -3,10 +3,10 @@ from typing import Dict, List
 
 class TeamAllocator:
     def allocate(self, group_size: int = 4, project_topic: str = "AssignmentPilot") -> Dict[str, Dict[str, List[str] or str]]:
-        if group_size != 4:
+        if group_size < 4 or group_size > 6:
             return self._allocate_generic(group_size, project_topic)
 
-        return {
+        allocation = {
             "Member 1": {
                 "role": "Project Lead and Perception Owner",
                 "agentic_stage": "Perceive + Overview",
@@ -53,6 +53,34 @@ class TeamAllocator:
                 "video_focus": "Explain feedback-based revision, human oversight, guardrails, compliance checking, and evaluation.",
             },
         }
+
+        if group_size >= 5:
+            allocation["Member 5"] = {
+                "role": "Integration and Video Demo Owner",
+                "agentic_stage": "Integration + Video",
+                "modules": [
+                    "End-to-end Demo Flow",
+                    "Demo Script",
+                    "Slide Evidence",
+                    "Video Coordination",
+                ],
+                "video_focus": "Explain how the four agentic stages connect in the final demo and coordinate concise video evidence.",
+            }
+
+        if group_size == 6:
+            allocation["Member 6"] = {
+                "role": "Evaluation and Documentation Owner",
+                "agentic_stage": "Evaluation + Documentation",
+                "modules": [
+                    "Test Cases",
+                    "Evaluation Report",
+                    "README Polish",
+                    "Submission Packaging",
+                ],
+                "video_focus": "Explain testing evidence, reproducibility, documentation quality, and final submission readiness.",
+            }
+
+        return allocation
 
     def _allocate_generic(self, group_size: int, project_topic: str) -> Dict[str, Dict[str, List[str] or str]]:
         size = max(1, group_size)

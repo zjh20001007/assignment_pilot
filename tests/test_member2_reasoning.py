@@ -54,6 +54,27 @@ class TeamAllocatorTests(unittest.TestCase):
         self.assertIn("Intent Router", allocation["Member 2"]["modules"])
         self.assertEqual(allocation["Member 2"]["agentic_stage"], "Reason")
 
+    def test_allocates_five_members_with_specific_modules(self):
+        allocator = TeamAllocator()
+
+        allocation = allocator.allocate(group_size=5, project_topic="AssignmentPilot")
+
+        self.assertEqual(len(allocation), 5)
+        self.assertEqual(allocation["Member 5"]["agentic_stage"], "Integration + Video")
+        self.assertIn("Demo Script", allocation["Member 5"]["modules"])
+        self.assertTrue(allocation["Member 5"]["modules"])
+
+    def test_allocates_six_members_with_specific_modules(self):
+        allocator = TeamAllocator()
+
+        allocation = allocator.allocate(group_size=6, project_topic="AssignmentPilot")
+
+        self.assertEqual(len(allocation), 6)
+        self.assertEqual(allocation["Member 5"]["agentic_stage"], "Integration + Video")
+        self.assertEqual(allocation["Member 6"]["agentic_stage"], "Evaluation + Documentation")
+        self.assertIn("Test Cases", allocation["Member 6"]["modules"])
+        self.assertTrue(allocation["Member 6"]["modules"])
+
 
 class PlannerAgentTests(unittest.TestCase):
     def test_generates_structured_plan_from_requirements_and_intent(self):
