@@ -1,124 +1,96 @@
 # AssignmentPilot
 
-AssignmentPilot is an Agentic AI assistant for course assignment planning and requirement extraction.
+AssignmentPilot is an Agentic AI assistant designed for course assignment planning and requirement extraction.
 
-The current version covers the **Perceive stage** and the **Reason stage** of the Agentic AI workflow. It reads an assignment brief provided by the user, uses a DeepSeek large language model to extract structured requirements, and returns the result in a unified `AgentResponse` format. The Reason stage classifies user intent, generates a project plan, breaks coding work into tasks, and allocates work across four members.
-
----
-
-## 1. Current Completed Work
-
-### 1.1 Completed Module
-
-The currently completed part is:
-
-```text
-Perception Agent / Perceive Stage
-```
-
-This module supports the following functions:
-
-1. Read an assignment brief from a `.txt` file.
-2. Support both a default assignment brief and a custom user-provided brief.
-3. Use DeepSeek LLM to extract structured assignment requirements.
-4. Convert the extracted JSON result into an `AssignmentRequirement` data object.
-5. Return the final result through a standard `AgentResponse`.
-6. Print the extracted requirements and execution logs in the terminal.
-7. Provide a stable input format for later modules, such as Intent Router, Planner Agent, Compliance Checker, and Feedback Agent.
-
-### 1.2 Input
-
-The current program accepts an assignment brief text file as input.
-
-Default input file:
-
-```text
-data/assignment_brief.txt
-```
-
-Custom input file example:
-
-```text
-data/Assignment_Brief_Responsible_AI_Deployment.txt
-```
-
-The input file should be a `.txt` file containing assignment instructions, project requirements, grading criteria, submission requirements, deadlines, or similar course project information.
-
-Example command with a custom brief file:
-
-```bash
-python main.py --brief data/Assignment_Brief_Responsible_AI_Deployment.txt
-```
-
-The `--brief` argument tells the program which assignment brief file to read.
-
-### 1.3 Output
-
-At the current stage, the main output is printed directly in the terminal.
-
-The terminal output includes:
-
-1. Whether the Perception Agent ran successfully.
-2. The input brief file path.
-3. The length of the raw input text.
-4. The extracted structured assignment requirements.
-5. Execution logs from the Perception Agent.
-
-Example extracted requirement output:
-
-```json
-{
-  "project_goal": "Research, analyse, and present a recent real-world case or incident involving a Generative AI-powered system.",
-  "course_name": "",
-  "video_limit_minutes": 0,
-  "required_video_sections": [],
-  "required_agentic_stages": [],
-  "submission_requirements": {
-    "deliverables": ["slides"],
-    "format": ["8-10 slides, excluding title slide and content slide"],
-    "submission_platform": "NTUlearn",
-    "group_requirements": "Individual or group of 4-6",
-    "special_requirements": []
-  },
-  "grading_criteria": {
-    "Case Description": 20,
-    "Impact Analysis": 25,
-    "Root Cause Analysis": 25,
-    "Organisational Response or Resolution": 20,
-    "Presentation Structure": 10
-  },
-  "deadlines": {
-    "assignment_submission": "22 March 2026, 1159pm",
-    "peer_evaluation": ""
-  },
-  "bonus_features": [],
-  "human_interaction_required": false,
-  "responsible_ai_required": true,
-  "originality_requirements": [],
-  "peer_evaluation_requirements": []
-}
-```
-
-Currently, the extracted result is not automatically saved to a file. Later modules can extend the program to save generated outputs into:
-
-```text
-outputs/project_plan.md
-outputs/task_breakdown.csv
-outputs/compliance_report.md
-outputs/demo_log.json
-```
+The current version has completed the  **Perceive stage** ,  **Reason stage** , and **Action stage** within the Agentic AI workflow. The program can read assignment brief files provided by the user, invoke the DeepSeek large language model to extract structured assignment requirements, and return results in a unified `AgentResponse` format. The Reason stage identifies user intent and generates project plans, task breakdowns, and four-person team allocations.
 
 ---
 
 ## 2. Current Data Structures
 
-The shared data structures are defined in:
+## 1. Currently Completed Content
 
-```text
+### 1.1 Completed Modules
+
+The currently completed parts are:
+
+```plaintext
+Perception Agent / Perceive Stage
+Reasoning / Planning Agent / Reason Stage
+Action Agent / Action Stage
+```
+
+The module currently supports the following functions:
+
+1. Reading assignment briefs from `.txt` files.
+2. Supporting both default assignment briefs and user-defined custom brief files.
+3. Automatically extracting assignment requirements using the DeepSeek LLM.
+4. Converting JSON results returned by the LLM into `AssignmentRequirement` data objects.
+5. Clarifying user intent and generating development task breakdowns, timelines, and team allocations.
+6. Printing clean extraction results, execution logs, and file generation paths in the terminal.
+7. Automatically outputting reasoning results into multiple physical deliverables (Markdown, CSV).
+8. Providing a solid foundation for subsequent Learn and Responsible AI modules (Compliance Checker and Feedback Agent).
+
+### 1.2 Input Specifications
+
+The current program receives an assignment brief text file as input.
+
+Default input file:
+
+```plaintext
+data/assignment_brief.txt
+```
+
+Example of a custom input file:
+
+```plaintext
+data/Assignment_Brief_Responsible_AI_Deployment.txt
+```
+
+Input files should be `.txt` files containing assignment descriptions, project requirements, grading criteria, submission methods, deadlines, etc.
+
+Command example for using a custom brief file:
+
+```bash
+python main.py --brief data/Assignment_Brief_Responsible_AI_Deployment.txt
+```
+
+The `--brief` parameter tells the program which assignment description file to read for the current run.
+
+### 1.3 Where to Obtain Output Results
+
+In the current stage, the main execution status of the program is printed clearly in the terminal, while the actual physical output files are automatically saved in the `outputs/` folder at the root directory.
+
+Terminal output includes:
+
+1. Whether the Perception Agent ran successfully.
+2. The file path of the input brief.
+3. Original input text length.
+4. Structured assignment requirements extracted.
+5. Execution logs of the Perception Agent.
+6. Final execution status and generated file paths from the Action Agent.
+
+Physical files generated upon execution include:
+
+```plaintext
+outputs/project_plan.md      # Project schedule containing a Mermaid Gantt chart
+outputs/task_breakdown.csv   # Specific task allocation table for the four-person team
+outputs/priorities.csv       # Project development priority table
+outputs/demo_log.json        # System execution trace log
+outputs/compliance_report.md # Compliance audit report containing human verification and reserved machine verification areas
+```
+
+---
+
+## 2. Currently Defined Data Structures
+
+Shared data structures are defined in:
+
+```plaintext
 schemas.py
 ```
 
-These structures define how different modules exchange information. Later members should reuse these structures instead of creating incompatible formats.
+These structures are crucial as they govern how data is passed between different Agents and tools. Subsequent members should reuse these structures whenever possible to avoid incompatible data formats.
 
 ### 2.1 `AssignmentRequirement`
 
@@ -149,21 +121,21 @@ class AssignmentRequirement:
 
 #### Field explanation
 
-| Field | Type | Meaning |
-|---|---|---|
-| `project_goal` | `str` | The main goal of the assignment. It describes what students are expected to do, such as building an Agentic AI application, analysing a case study, preparing a report, or giving a presentation. |
-| `course_name` | `str` | The course name if explicitly mentioned in the brief. If the course name is not found, this field can remain empty. |
-| `video_limit_minutes` | `int` | The maximum video duration in minutes if the assignment requires a video. If no video limit is mentioned, the value can be `0`. |
-| `required_video_sections` | `List[str]` | Sections that must appear in a video presentation, such as `Overview`, `Perceive`, `Reason`, `Action`, `Learn`, `Responsible AI`, or `Conclusions`. If there is no video requirement, this list can be empty. |
-| `required_agentic_stages` | `List[str]` | Required Agentic AI stages, such as `Perceive`, `Reason`, `Action`, and `Learn`. This is useful for Agentic AI project briefs. If the assignment is not about Agentic AI workflow, this list can be empty. |
-| `submission_requirements` | `Dict[str, str]` | A dictionary describing what students need to submit, including deliverables, formats, submission platform, group requirements, and special requirements. |
-| `grading_criteria` | `Dict[str, float]` | A dictionary of grading criteria and their weights. Example: `{"Case Description": 20, "Impact Analysis": 25}`. |
-| `deadlines` | `Dict[str, str]` | Important deadlines, such as assignment submission deadline and peer evaluation deadline. |
-| `bonus_features` | `List[str]` | Bonus features or optional advanced requirements mentioned in the brief, such as Agentic RAG, Agent Evaluation, MCP, A2A, or PII Masking. |
-| `human_interaction_required` | `bool` | Whether the assignment explicitly requires human supervision, human approval, peer evaluation, human-in-the-loop design, or human participation in the workflow. |
-| `responsible_ai_required` | `bool` | Whether the assignment involves Responsible AI topics such as ethics, governance, compliance, risk mitigation, fairness, privacy, safety, accountability, or harmful AI incidents. |
-| `originality_requirements` | `List[str]` | Requirements related to originality, academic integrity, plagiarism, or AI tool usage declaration. |
-| `peer_evaluation_requirements` | `List[str]` | Requirements related to peer evaluation, teamwork review, peer assessment criteria, or peer evaluation deadlines. |
+| Field                            | Type                 | Meaning                                                                                                                                                                                                                     |
+| -------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `project_goal`                 | `str`              | The main goal of the assignment. It describes what students are expected to do, such as building an Agentic AI application, analysing a case study, preparing a report, or giving a presentation.                           |
+| `course_name`                  | `str`              | The course name if explicitly mentioned in the brief. If the course name is not found, this field can remain empty.                                                                                                         |
+| `video_limit_minutes`          | `int`              | The maximum video duration in minutes if the assignment requires a video. If no video limit is mentioned, the value can be `0`.                                                                                           |
+| `required_video_sections`      | `List[str]`        | Sections that must appear in a video presentation, such as `Overview`, `Perceive`, `Reason`, `Action`, `Learn`, `Responsible AI`, or `Conclusions`. If there is no video requirement, this list can be empty. |
+| `required_agentic_stages`      | `List[str]`        | Required Agentic AI stages, such as `Perceive`, `Reason`, `Action`, and `Learn`. This is useful for Agentic AI project briefs. If the assignment is not about Agentic AI workflow, this list can be empty.          |
+| `submission_requirements`      | `Dict[str, str]`   | A dictionary describing what students need to submit, including deliverables, formats, submission platform, group requirements, and special requirements.                                                                   |
+| `grading_criteria`             | `Dict[str, float]` | A dictionary of grading criteria and their weights. Example:`{"Case Description": 20, "Impact Analysis": 25}`.                                                                                                            |
+| `deadlines`                    | `Dict[str, str]`   | Important deadlines, such as assignment submission deadline and peer evaluation deadline.                                                                                                                                   |
+| `bonus_features`               | `List[str]`        | Bonus features or optional advanced requirements mentioned in the brief, such as Agentic RAG, Agent Evaluation, MCP, A2A, or PII Masking.                                                                                   |
+| `human_interaction_required`   | `bool`             | Whether the assignment explicitly requires human supervision, human approval, peer evaluation, human-in-the-loop design, or human participation in the workflow.                                                            |
+| `responsible_ai_required`      | `bool`             | Whether the assignment involves Responsible AI topics such as ethics, governance, compliance, risk mitigation, fairness, privacy, safety, accountability, or harmful AI incidents.                                          |
+| `originality_requirements`     | `List[str]`        | Requirements related to originality, academic integrity, plagiarism, or AI tool usage declaration.                                                                                                                          |
+| `peer_evaluation_requirements` | `List[str]`        | Requirements related to peer evaluation, teamwork review, peer assessment criteria, or peer evaluation deadlines.                                                                                                           |
 
 #### Details of `submission_requirements`
 
@@ -179,12 +151,12 @@ Although `submission_requirements` is stored as a dictionary, the current LLM ex
 }
 ```
 
-| Subfield | Meaning |
-|---|---|
-| `deliverables` | The main items students need to submit, such as slides, report, code, notebook, video, or presentation. |
-| `format` | Format requirements, such as slide count, page count, video length, file type, or notebook format. |
-| `submission_platform` | Where the assignment should be submitted, such as NTUlearn, Blackboard, GitHub, YouTube, or another platform. |
-| `group_requirements` | Whether the assignment is individual or group-based, and how many members are allowed or required. |
+| Subfield                 | Meaning                                                                                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `deliverables`         | The main items students need to submit, such as slides, report, code, notebook, video, or presentation.                                         |
+| `format`               | Format requirements, such as slide count, page count, video length, file type, or notebook format.                                              |
+| `submission_platform`  | Where the assignment should be submitted, such as NTUlearn, Blackboard, GitHub, YouTube, or another platform.                                   |
+| `group_requirements`   | Whether the assignment is individual or group-based, and how many members are allowed or required.                                              |
 | `special_requirements` | Additional requirements, such as title slide exclusion, AI usage statement, member appearance, own voice, captions, or originality declaration. |
 
 ### 2.2 `UserContext`
@@ -207,16 +179,16 @@ class UserContext:
 
 #### Field explanation
 
-| Field | Type | Meaning |
-|---|---|---|
-| `user_input` | `str` | The current user request. Example: `"Help us plan the coding part of AssignmentPilot."` |
-| `group_size` | `int` | Number of team members. The default is `4` because the current team has four members. |
-| `available_days` | `int` | Estimated number of days available before the deadline. This can later help the Planner Agent generate a realistic timeline. |
-| `selected_topic` | `str` | The selected project topic. The default is `AssignmentPilot`. |
-| `preferred_difficulty` | `str` | The user's preferred implementation difficulty, such as `low`, `medium`, or `high`. This can later help simplify or expand the project scope. |
-| `current_progress` | `str` | A short description of the current project progress. Example: `"Perception Agent completed."` |
-| `target_bonus_features` | `List[str]` | Bonus features the team wants to include, such as Agentic RAG, observability, or evaluation. |
-| `feedback_history` | `List[str]` | A list of previous user feedback. This can later support the Learn stage and Feedback Agent. |
+| Field                     | Type          | Meaning                                                                                                                                             |
+| ------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `user_input`            | `str`       | The current user request. Example:`"Help us plan the coding part of AssignmentPilot."`                                                            |
+| `group_size`            | `int`       | Number of team members. The default is `4` because the current team has four members.                                                             |
+| `available_days`        | `int`       | Estimated number of days available before the deadline. This can later help the Planner Agent generate a realistic timeline.                        |
+| `selected_topic`        | `str`       | The selected project topic. The default is `AssignmentPilot`.                                                                                     |
+| `preferred_difficulty`  | `str`       | The user's preferred implementation difficulty, such as `low`, `medium`, or `high`. This can later help simplify or expand the project scope. |
+| `current_progress`      | `str`       | A short description of the current project progress. Example:`"Perception Agent completed."`                                                      |
+| `target_bonus_features` | `List[str]` | Bonus features the team wants to include, such as Agentic RAG, observability, or evaluation.                                                        |
+| `feedback_history`      | `List[str]` | A list of previous user feedback. This can later support the Learn stage and Feedback Agent.                                                        |
 
 ### 2.3 `AgentResponse`
 
@@ -236,15 +208,15 @@ class AgentResponse:
 
 #### Field explanation
 
-| Field | Type | Meaning |
-|---|---|---|
-| `success` | `bool` | Whether the module ran successfully. `True` means success, while `False` means failure. |
-| `module_name` | `str` | The name of the agent or tool returning the response, such as `PerceptionAgent`. |
-| `data` | `Dict[str, Any]` | The main result returned by the module. For the Perception Agent, this includes `user_input`, `raw_text_length`, and `requirements`. |
-| `message` | `str` | A short human-readable message explaining the result. Example: `"Perception completed successfully."` |
-| `warnings` | `List[str]` | Non-fatal issues. The module can still succeed even if warnings exist. |
-| `errors` | `List[str]` | Error messages if the module fails. Example: missing file path, empty file, missing API key, or LLM response parsing failure. |
-| `logs` | `List[Dict[str, Any]]` | Step-by-step execution logs. These logs support debugging and can later be used for agent observability. |
+| Field           | Type                     | Meaning                                                                                                                                    |
+| --------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `success`     | `bool`                 | Whether the module ran successfully.`True` means success, while `False` means failure.                                                 |
+| `module_name` | `str`                  | The name of the agent or tool returning the response, such as `PerceptionAgent`.                                                         |
+| `data`        | `Dict[str, Any]`       | The main result returned by the module. For the Perception Agent, this includes `user_input`, `raw_text_length`, and `requirements`. |
+| `message`     | `str`                  | A short human-readable message explaining the result. Example:`"Perception completed successfully."`                                     |
+| `warnings`    | `List[str]`            | Non-fatal issues. The module can still succeed even if warnings exist.                                                                     |
+| `errors`      | `List[str]`            | Error messages if the module fails. Example: missing file path, empty file, missing API key, or LLM response parsing failure.              |
+| `logs`        | `List[Dict[str, Any]]` | Step-by-step execution logs. These logs support debugging and can later be used for agent observability.                                   |
 
 ---
 
@@ -382,25 +354,35 @@ The current program flow is:
 ```text
 main.py
   ↓
-parse command-line arguments
+Parse CLI Arguments
   ↓
-create DocumentReaderTool
+Create DocumentReaderTool
   ↓
-create RequirementExtractorTool
+Create RequirementExtractorTool
   ↓
-create PerceptionAgent
+Create PerceptionAgent
   ↓
-read assignment brief file
+Read Assignment Brief
   ↓
-send raw text to DeepSeek
+Send text to DeepSeek
   ↓
-extract structured requirements
+Extract structured requirements
   ↓
-convert JSON into AssignmentRequirement
+Convert to AssignmentRequirement
   ↓
-wrap result in AgentResponse
+Wrap as AgentResponse
   ↓
-print extracted data and logs
+Print results/logs in terminal
+  ↓
+Generate structured plan/allocation
+  ↓
+Pass plan to Action Agent
+  ↓
+Safety path validation & field mapping
+  ↓
+Invoke tools to generate MD/CSV files
+  ↓
+Print final execution status/paths in terminal
 ```
 
 ---
@@ -485,30 +467,30 @@ Main tasks:
 
 ## 7. Current Status
 
-| Module | Status |
-|---|---|
-| Project folder structure | Completed |
-| Config file | Completed |
-| Shared schemas | Completed |
-| Document reader | Completed |
-| DeepSeek-based requirement extractor | Completed |
-| Perception Agent | Completed |
-| Custom brief file input | Completed |
-| Terminal output | Completed |
-| Intent Router | Completed |
-| Planner Agent | Completed |
-| Task Generator | Completed |
-| Team Allocator | Completed |
-| Checklist Generator | Not started |
-| Compliance Checker | Not started |
-| Safety Agent | Not started |
-| Feedback Agent | Not started |
-| Evaluation | Not started |
+| Module                               | Status                                                               |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| Project folder structure             | Completed                                                            |
+| Config file                          | Completed                                                            |
+| Shared schemas                       | Completed                                                            |
+| Document reader                      | Completed                                                            |
+| DeepSeek-based requirement extractor | Completed                                                            |
+| Perception Agent                     | Completed                                                            |
+| Custom brief file input              | Completed                                                            |
+| Terminal output                      | Completed                                                            |
+| Intent Router                        | Completed                                                            |
+| Planner Agent                        | Completed                                                            |
+| Task Generator                       | Completed                                                            |
+| Team Allocator                       | Completed                                                            |
+| Checklist Generator                  | Completed                                                            |
+| Compliance Checker                   | Human area (Member 3 Completed), Machine area (Member 4 Not Started) |
+| Safety Agent                         | Not started                                                          |
+| Feedback Agent                       | Not started                                                          |
+| Evaluation                           | Not started                                                          |
 
 Current version can be considered:
 
 ```text
-Perception Agent v1.0 + Reason Agent v1.0
+Perception Agent v1.0 + Reason Agent v1.0 + Action Agent v1.0
 ```
 
 ### 7.1 Member 2 Completed Work
@@ -532,5 +514,34 @@ python -m unittest tests.test_member2_reasoning -v
 Run the Reason-only demo:
 
 ```bash
-python main.py --reason_only --user_input "帮我考虑 coding 的部分，生成四个人分工和项目计划"
+python main.py --reason_only --user_input "Help us plan the coding part of AssignmentPilot."
+```
+
+### 7.2 Member 3 Completed Content
+
+Member 3 has completed the core modules for the Action stage:
+
+```plaintext
+agents/action_agent.py
+tools/timeline_generator.py
+tools/checklist_generator.py
+tools/logger.py
+outputs/project_plan.md
+outputs/task_breakdown.csv
+outputs/demo_log.json
+outputs/compliance_report.md
+outputs/priorities.csv
+```
+
+Core Function Implementation:
+
+1. Automated Deliverable Generation : Automatically generates Markdown project plans and CSV task/priority tables based on reasoning results.
+2. Compliance Warning Framework : Generates audit reports via `ChecklistGenerator`. Completed "Human Verification" area rendering and reserved slots for Member 4’s automated audit.
+3. System-level Observability : Introduced `ActionLogger` to record Agent execution steps, statuses, and I/O traces via `record_internal_trace`, saving traces as structured JSON.
+4. Defensive Programming : Added path security validation `_is_safe_path` in `ActionAgent` to prevent path traversal risks.
+
+Run Demo: Run the Action stage individually using mock data:
+
+```bash
+python main.py --action_only
 ```

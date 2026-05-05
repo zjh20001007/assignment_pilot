@@ -5,6 +5,7 @@ from typing import Dict, Any, List
 
 from tools.timeline_generator import TimelineGenerator
 from tools.checklist_generator import ChecklistGenerator
+from tools.logger import ActionLogger
 
 class ActionAgent:
     """
@@ -14,9 +15,8 @@ class ActionAgent:
     def __init__(self):
         self.timeline_gen = TimelineGenerator()
         self.checklist_gen = ChecklistGenerator()
+        self.external_logger = ActionLogger(log_filename="demo_log.json")
         self.step_counter = 1
-        
-        # Internal memory log to replace the buggy external logger for clean demo output.
         self.logs = []
         
         # Resolve project root for strict reproducibility.
@@ -25,26 +25,20 @@ class ActionAgent:
 
     def record_internal_trace(self, step: int, agent: str, action: str, status: str, details: dict) -> None:
         """
-        Records an in-memory execution trace to fulfill Agent Observability requirements.
-        
+        Records an execution trace in memory AND writes it to the external JSON log file for observability.
+
         Args:
-            step: The current execution step number.
-            agent: The name of the agent performing the action.
-            action: A descriptive, human-readable name of the action being performed.
-            status: The current status of the action (e.g., 'started', 'success', 'failed').
-            details: A dictionary containing specific observation data related to the action.
+            step (int): The current execution step number.
+            agent (str): The name of the agent performing the action.
+            action (str): A descriptive, human-readable name of the action being performed.
+            status (str): The current status of the action (e.g., 'success', 'failed').
+            details (dict): A dictionary containing specific observation data related to the action.
 
         Returns:
-            None. The trace is appended to the internal 'self.logs' list.
+            None: This internal tool does not return a value. It mutates internal state and external logs.
 
-        Example usage:
-            self.record_internal_trace(
-                step=1,
-                agent="ActionAgent",
-                action="generate_timeline",
-                status="success",
-                details={"file": "outputs/project_plan.md"}
-            )
+        Example return value:
+            None
         """
         self.logs.append({
             "step": step,
@@ -53,6 +47,14 @@ class ActionAgent:
             "status": status,
             "observation": details
         })
+        
+        self.external_logger.record_tool_execution_trace(
+            step=step,
+            agent_name=agent,
+            action=action,
+            status=status,
+            details=details
+        )
 
     def execute_planned_tool_actions(self, planner_output: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -60,14 +62,14 @@ class ActionAgent:
         Adheres to best practices by returning file paths instead of large file contents to prevent LLM context swamping.
 
         Args:
-            planner_output: A dictionary containing the structured project plan. Expected keys include:
+            planner_output (Dict[str, Any]): A dictionary containing the structured project plan. Expected keys include:
                 'coding_tasks': A list of dictionaries detailing daily coding assignments.
                 'video_sections_to_cover': A list of strings outlining required video content.
                 'team_allocation': A dictionary mapping team members to their assigned tasks.
                 'development_priorities': A list of dictionaries defining project priorities.
 
         Returns:
-            A dictionary detailing the execution status and generated artifacts. Expected keys include:
+            Dict[str, Any]: A dictionary detailing the execution status and generated artifacts. Expected keys include:
                 'status': A string indicating the overall success or completion message.
                 'generated_files': A dictionary mapping artifact identifiers to their saved file paths on disk.
 
@@ -75,10 +77,11 @@ class ActionAgent:
             {
                 'status': 'Action stage completed successfully',
                 'generated_files': {
-                    'project_plan': 'Q:\\path\\outputs\\project_plan.md',
-                    'compliance_checklist': 'Q:\\path\\outputs\\compliance_report.md',
-                    'task_breakdown': 'Q:\\path\\outputs\\task_breakdown.csv',
-                    'development_priorities': 'Q:\\path\\outputs\\priorities.csv'
+                    'project_plan': 'outputs/project_plan.md',
+                    'compliance_checklist': 'outputs/compliance_report.md',
+                    'task_breakdown': 'outputs/task_breakdown.csv',
+                    'development_priorities': 'outputs/priorities.csv',
+                    'demo_execution_logs': 'outputs/demo_log.json'
                 }
             }
         """
@@ -155,6 +158,15 @@ class ActionAgent:
                     self.record_internal_trace(self.step_counter, "ActionAgent", "export_priorities_csv", "failed", {"error": str(e)})
             self.step_counter += 1
 
+        # Phase 5: Finalize Observability Logs
+        # Design Consideration: Include the log file path in generated_files to ensure transparency 
+        # of the execution trace for audit purposes.
+        if self.external_logger and self.external_logger.log_file.exists():
+            log_path = str(self.external_logger.log_file)
+            results["demo_execution_logs"] = log_path
+            self.record_internal_trace(self.step_counter, "ActionAgent", "finalize_logs", "success", {"file": log_path})
+            self.step_counter += 1
+
         return {
             "status": "Action stage completed successfully",
             "generated_files": results
@@ -165,11 +177,11 @@ class ActionAgent:
         Validates if a given filename resolves to a path securely within the designated output directory sandbox.
 
         Args:
-            target_filename: The name of the file to be validated (e.g., 'project_plan.md').
+            target_filename (str): The name of the file to be validated (e.g., 'project_plan.md').
 
         Returns:
-            A boolean value. Returns True if the path is safely contained within the output directory, 
-            and False if a Path Traversal Attack is detected or an error occurs.
+            bool: Returns True if the path is safely contained within the output directory, 
+                  and False if a Path Traversal Attack is detected or an error occurs.
 
         Example return value:
             True
@@ -185,16 +197,12 @@ class ActionAgent:
         Integration wrapper that processes the reasoning output and formats the final action response.
 
         Args:
-            planner_output: The data structure from the Reasoning stage. Can be an object with a '.data' attribute, 
-            a JSON string, or a dictionary.
+            planner_output (Any): The data structure from the Reasoning stage. Can be an object with a '.data' attribute, 
+                                  a JSON string, or a dictionary.
 
         Returns:
-            A Response-like object containing execution success status, payload data, logs, and a status message. 
-            Expected attributes include:
-                'success': Boolean indicating if the run was successful.
-                'data': The dictionary returned by 'execute_planned_tool_actions'.
-                'logs': The internal execution trace list.
-                'message': The final execution status string.
+            Any: A Response-like object containing execution success status, payload data, logs, and a status message. 
+                 Expected attributes include 'success', 'data', 'logs', and 'message'.
 
         Example return value:
             <Response object with success=True, data={'generated_files': {...}}, message='Action stage completed successfully'>
