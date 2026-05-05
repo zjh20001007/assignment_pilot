@@ -1,2 +1,5 @@
 Member,Assigned Tasks
-Member 3,Action Agent
+Member 1,"Main Orchestrator, Document Reader, Requirement Extractor, Perception Agent, Integration"
+Member 2,"Intent Router, Planner Agent, Task Generator, Team Allocation"
+Member 3,"Checklist Generator, Timeline Generator, Output Writer, Logger"
+Member 4,"Feedback Agent, Safety Agent, Compliance Checker, Evaluator"

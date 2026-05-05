@@ -35,7 +35,7 @@ DEFAULT_REASONING_REQUIREMENTS = {
 
 # Member 3 Addition: Mock data for standalone Action stage testing
 DEFAULT_PLANNER_OUTPUT = {
-    "timeline": [
+    "coding_tasks": [
         {"day": "Day 1", "task": "Complete system architecture design and Perception Agent"},
         {"day": "Day 2", "task": "Implement Intent Router and Planner Agent (Reasoning Stage)"},
         {"day": "Day 3", "task": "Develop toolchain and Action Agent (Tool-calling)"},
@@ -43,7 +43,7 @@ DEFAULT_PLANNER_OUTPUT = {
         {"day": "Day 5", "task": "System integration and test case execution"},
         {"day": "Day 6", "task": "Record the 12-minute final demo video"}
     ],
-    "checklist": [
+    "video_sections_to_cover": [
         "Video duration is strictly within 12 minutes",
         "Overview stage and assignment motivation are clearly demonstrated",
         "Four core cycles (Perceive, Reason, Action, Learn) are covered",
@@ -56,7 +56,11 @@ DEFAULT_PLANNER_OUTPUT = {
         "Member 2": ["Intent Router", "Planner Agent", "Task Breakdown Logic"],
         "Member 3": ["Action Agent", "Tool-calling execution", "MD/CSV Generation & Logging"],
         "Member 4": ["Feedback Agent", "Safety Guardrails", "Compliance Checking"]
-    }
+    },
+    "development_priorities": [
+        {"priority": "P1", "focus": "End-to-end runnable demo", "reason": "The assignment assesses working implementation."},
+        {"priority": "P2", "focus": "Responsible AI guardrails", "reason": "Worth 25% of grade and supports bonus evidence."}
+    ]
 }
 
 
@@ -217,11 +221,7 @@ def run_action_demo(planner_output=None):
     from agents.action_agent import ActionAgent
 
     if planner_output is None:
-        data_to_process = {
-            "timeline": [{"task_name": "Demo Dev", "duration": "Day 1"}],
-            "checklist": ["Integration Test"],
-            "team_allocation": {"Member 3": ["Action Agent"]}
-        }
+        data_to_process = DEFAULT_PLANNER_OUTPUT
     else:
         data_to_process = planner_output
 
@@ -232,7 +232,6 @@ def run_action_demo(planner_output=None):
     print("AssignmentPilot - Action / Tool-calling Demo")
     print("="*60)
 
-    # Use .data to match the Response object structure
     if hasattr(response, 'data'):
         results = response.data
         status_msg = response.message
@@ -241,7 +240,16 @@ def run_action_demo(planner_output=None):
         status_msg = response.get("status")
 
     print(f"\nFinal Execution Status: {status_msg}")
-    print(f"Artifacts Created: {json.dumps(results.get('generated_files'), indent=2)}")
+    print("\nArtifacts Successfully Generated (Saved to ./outputs/):")
+    print("-" * 60)
+    
+    generated_files = results.get('generated_files', {})
+    
+    for key, path in generated_files.items():
+        filename = Path(path).name 
+        print(f"  {key:<25} ->  ./outputs/{filename}")
+    
+    print("-" * 60 + "\n")
 
 
 if __name__ == "__main__":
