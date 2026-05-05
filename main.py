@@ -1,12 +1,12 @@
-import argparse
 import json
 from pathlib import Path
+import argparse
 
 from config import ASSIGNMENT_BRIEF_PATH, ensure_project_directories
 from agents.intent_router import IntentRouter
 from agents.planner_agent import PlannerAgent
+from agents.action_agent import ActionAgent
 from tools.document_reader import DocumentReaderTool
-
 
 DEFAULT_REASONING_REQUIREMENTS = {
     "project_goal": "Design and demonstrate an Agentic AI application for a realistic multi-step reasoning scenario.",
@@ -33,6 +33,32 @@ DEFAULT_REASONING_REQUIREMENTS = {
     "responsible_ai_required": True,
 }
 
+# Member 3 Addition: Mock data for standalone Action stage testing
+DEFAULT_PLANNER_OUTPUT = {
+    "timeline": [
+        {"day": "Day 1", "task": "Complete system architecture design and Perception Agent"},
+        {"day": "Day 2", "task": "Implement Intent Router and Planner Agent (Reasoning Stage)"},
+        {"day": "Day 3", "task": "Develop toolchain and Action Agent (Tool-calling)"},
+        {"day": "Day 4", "task": "Integrate Safety and Feedback modules (Learn & Responsible AI)"},
+        {"day": "Day 5", "task": "System integration and test case execution"},
+        {"day": "Day 6", "task": "Record the 12-minute final demo video"}
+    ],
+    "checklist": [
+        "Video duration is strictly within 12 minutes",
+        "Overview stage and assignment motivation are clearly demonstrated",
+        "Four core cycles (Perceive, Reason, Action, Learn) are covered",
+        "Responsible Agentic AI guardrails are explicitly declared",
+        "Data visualization and Agent Observability are showcased via Timeline and Logs",
+        "All source code is compressed and ready for submission"
+    ],
+    "team_allocation": {
+        "Member 1": ["Perception Agent", "main.py architecture", "Document Extraction Tool"],
+        "Member 2": ["Intent Router", "Planner Agent", "Task Breakdown Logic"],
+        "Member 3": ["Action Agent", "Tool-calling execution", "MD/CSV Generation & Logging"],
+        "Member 4": ["Feedback Agent", "Safety Guardrails", "Compliance Checking"]
+    }
+}
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -51,6 +77,12 @@ def parse_args():
         type=str,
         default="We are a four-member team. Help us plan the coding part of AssignmentPilot.",
         help="User request for the agent."
+    )
+
+    parser.add_argument(
+        "--action_only",
+        action="store_true",
+        help="Run only Member 3 Action stage (Tool-calling & File generation)."
     )
 
     parser.add_argument(
@@ -178,19 +210,56 @@ def run_reasoning_demo(
         "plan_response": plan_response,
     }
 
+def run_action_demo(planner_output=None):
+    """
+    Member 3 Demo Runner. Handles the ActionAgent response format.
+    """
+    from agents.action_agent import ActionAgent
+
+    if planner_output is None:
+        data_to_process = {
+            "timeline": [{"task_name": "Demo Dev", "duration": "Day 1"}],
+            "checklist": ["Integration Test"],
+            "team_allocation": {"Member 3": ["Action Agent"]}
+        }
+    else:
+        data_to_process = planner_output
+
+    action_agent = ActionAgent()
+    response = action_agent.run_actions(data_to_process)
+
+    print("\n" + "="*60)
+    print("AssignmentPilot - Action / Tool-calling Demo")
+    print("="*60)
+
+    # Use .data to match the Response object structure
+    if hasattr(response, 'data'):
+        results = response.data
+        status_msg = response.message
+    else:
+        results = response
+        status_msg = response.get("status")
+
+    print(f"\nFinal Execution Status: {status_msg}")
+    print(f"Artifacts Created: {json.dumps(results.get('generated_files'), indent=2)}")
+
 
 if __name__ == "__main__":
     args = parse_args()
 
     custom_brief_path = Path(args.brief)
 
-    if args.reason_only:
+    if args.action_only:
+        run_action_demo()
+        
+    elif args.reason_only:
         run_reasoning_demo(
             user_input=args.user_input,
             group_size=args.group_size,
             available_days=args.available_days,
             selected_topic=args.topic,
         )
+        
     else:
         perception_response = run_perception_demo(
             brief_path=custom_brief_path,
@@ -198,10 +267,13 @@ if __name__ == "__main__":
         )
 
         if perception_response.success:
-            run_reasoning_demo(
+            reasoning_results = run_reasoning_demo(
                 user_input=args.user_input,
                 requirements=perception_response.data.get("requirements", {}),
                 group_size=args.group_size,
                 available_days=args.available_days,
                 selected_topic=args.topic,
             )
+            
+            plan_data = reasoning_results["plan_response"].data
+            run_action_demo(planner_output=plan_data)
