@@ -1,14 +1,14 @@
 Assignment Brief - Generative AI Case Study
 
 Overview
-You will work individually or in a group of 4-6 to research, analyse, and present a recent real-world case or incident involving a Generative AI-powered system.
+You will work in a group of 5 to research, analyse, and present a recent real-world case or incident involving a Generative AI-powered system.
 
 Your chosen case may cover these issues:
 - Ethical considerations
 - Risk mitigation and management
 - Governance and compliance
 
-This project makes up 20% of your total course grade. Deadline is on 22 March 2026, 1159pm.
+This project makes up 20% of your total course grade. Deadline is on 22 May 2026, 1159pm.
 
 Your Task
 
