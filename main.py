@@ -2,10 +2,26 @@ import argparse
 import json
 from pathlib import Path
 
+from agents.context_agent import ContextAgent
 from config import ASSIGNMENT_BRIEF_PATH, ensure_project_directories
 from agents.intent_router import IntentRouter
 from agents.planner_agent import PlannerAgent
 from tools.document_reader import DocumentReaderTool
+
+
+DEFAULT_PERCEPTION_USER_INPUT = (
+    "Please help me to extract the project requirements."
+)
+
+DEFAULT_REASON_USER_INPUT = (
+    "Please generate a project architecture and design plan for AssignmentPilot."
+)
+
+DEFAULT_GROUP_SIZE = 4
+
+DEFAULT_AVAILABLE_DAYS = 7
+
+DEFAULT_TOPIC = "AssignmentPilot"
 
 
 DEFAULT_REASONING_REQUIREMENTS = {
@@ -36,7 +52,7 @@ DEFAULT_REASONING_REQUIREMENTS = {
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="AssignmentPilot Perception Agent Demo"
+        description="AssignmentPilot Perception + Context + Reason Demo"
     )
 
     parser.add_argument(
@@ -49,8 +65,8 @@ def parse_args():
     parser.add_argument(
         "--user_input",
         type=str,
-        default="We are a four-member team. Help us plan the coding part of AssignmentPilot.",
-        help="User request for the agent."
+        default=None,
+        help="Optional user request. If not provided, each stage will use its own default user_input."
     )
 
     parser.add_argument(
@@ -62,21 +78,21 @@ def parse_args():
     parser.add_argument(
         "--group_size",
         type=int,
-        default=4,
-        help="Number of team members."
+        default=None,
+        help="Optional number of team members. If not provided, ContextAgent will infer it from the assignment brief."
     )
 
     parser.add_argument(
         "--available_days",
         type=int,
-        default=7,
-        help="Estimated available development days."
+        default=None,
+        help="Optional estimated available development days. If not provided, ContextAgent will infer it from the assignment deadline."
     )
 
     parser.add_argument(
         "--topic",
         type=str,
-        default="AssignmentPilot",
+        default=DEFAULT_TOPIC,
         help="Selected project topic."
     )
 
@@ -132,12 +148,16 @@ def run_perception_demo(brief_path: Path, user_input: str):
 def run_reasoning_demo(
     user_input: str,
     requirements: dict | None = None,
-    group_size: int = 4,
-    available_days: int = 7,
-    selected_topic: str = "AssignmentPilot",
+    group_size: int | None = None,
+    available_days: int | None = None,
+    selected_topic: str | None = None,
     print_output: bool = True,
 ) -> dict:
     ensure_project_directories()
+
+    group_size = group_size or DEFAULT_GROUP_SIZE
+    available_days = available_days or DEFAULT_AVAILABLE_DAYS
+    selected_topic = selected_topic or DEFAULT_TOPIC
 
     intent_router = IntentRouter()
     planner_agent = PlannerAgent()
@@ -171,7 +191,11 @@ def run_reasoning_demo(
         print(json.dumps(plan_response.data, indent=2, ensure_ascii=False))
 
         print("\nReasoning Logs:")
-        print(json.dumps(intent_response.logs + plan_response.logs, indent=2, ensure_ascii=False))
+        print(json.dumps(
+            intent_response.logs + plan_response.logs,
+            indent=2,
+            ensure_ascii=False
+        ))
 
     return {
         "intent_response": intent_response,
@@ -184,24 +208,95 @@ if __name__ == "__main__":
 
     custom_brief_path = Path(args.brief)
 
+    # Resolve stage-specific user input.
+    if args.user_input is not None:
+        perception_user_input = args.user_input
+        reason_user_input = args.user_input
+    else:
+        perception_user_input = DEFAULT_PERCEPTION_USER_INPUT
+        reason_user_input = DEFAULT_REASON_USER_INPUT
+
+    # Reason-only mode does not have Perception requirements.
+    # Therefore ContextAgent is not used here.
     if args.reason_only:
+        resolved_group_size = (
+            args.group_size
+            if args.group_size is not None
+            else DEFAULT_GROUP_SIZE
+        )
+
+        resolved_available_days = (
+            args.available_days
+            if args.available_days is not None
+            else DEFAULT_AVAILABLE_DAYS
+        )
+
+        print(f"the group size is {resolved_group_size}")
+        print(f"the resolved_available_days is {resolved_available_days}")
+
         run_reasoning_demo(
-            user_input=args.user_input,
-            group_size=args.group_size,
-            available_days=args.available_days,
+            user_input=reason_user_input,
+            group_size=resolved_group_size,
+            available_days=resolved_available_days,
             selected_topic=args.topic,
         )
+
+    # Full mode: Perception -> Context -> Reason.
     else:
         perception_response = run_perception_demo(
             brief_path=custom_brief_path,
-            user_input=args.user_input
+            user_input=perception_user_input,
         )
 
         if perception_response.success:
+            requirements = perception_response.data.get("requirements", {})
+
+            # ContextAgent resolves group_size and available_days.
+            context_agent = ContextAgent()
+
+            context_response = context_agent.run({
+                "requirements": requirements,
+                "group_size_override": args.group_size,
+                "available_days_override": args.available_days,
+                "default_group_size": DEFAULT_GROUP_SIZE,
+                "default_available_days": DEFAULT_AVAILABLE_DAYS,
+            })
+
+            if context_response.success:
+                resolved_group_size = context_response.data.get(
+                    "group_size",
+                    DEFAULT_GROUP_SIZE
+                )
+
+                resolved_available_days = context_response.data.get(
+                    "available_days",
+                    DEFAULT_AVAILABLE_DAYS
+                )
+            else:
+                resolved_group_size = DEFAULT_GROUP_SIZE
+                resolved_available_days = DEFAULT_AVAILABLE_DAYS
+
+            print(f"the group size is {resolved_group_size}")
+            print(f"the resolved_available_days is {resolved_available_days}")
+
+            print("\nContext Agent Result:")
+            print(json.dumps(
+                context_response.data,
+                indent=2,
+                ensure_ascii=False
+            ))
+
+            print("\nContext Logs:")
+            print(json.dumps(
+                context_response.logs,
+                indent=2,
+                ensure_ascii=False
+            ))
+
             run_reasoning_demo(
-                user_input=args.user_input,
-                requirements=perception_response.data.get("requirements", {}),
-                group_size=args.group_size,
-                available_days=args.available_days,
+                user_input=reason_user_input,
+                requirements=requirements,
+                group_size=resolved_group_size,
+                available_days=resolved_available_days,
                 selected_topic=args.topic,
             )
