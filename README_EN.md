@@ -2,7 +2,7 @@
 
 AssignmentPilot is an Agentic AI assistant for course assignment planning and requirement extraction.
 
-The current version focuses on the **Perceive stage** of the Agentic AI workflow. It reads an assignment brief provided by the user, uses a DeepSeek large language model to extract structured requirements, and returns the result in a unified `AgentResponse` format.
+The current version covers the **Perceive stage** and the **Reason stage** of the Agentic AI workflow. It reads an assignment brief provided by the user, uses a DeepSeek large language model to extract structured requirements, and returns the result in a unified `AgentResponse` format. The Reason stage classifies user intent, generates a project plan, breaks coding work into tasks, and allocates work across four members.
 
 ---
 
@@ -495,8 +495,10 @@ Main tasks:
 | Perception Agent | Completed |
 | Custom brief file input | Completed |
 | Terminal output | Completed |
-| Intent Router | Not started |
-| Planner Agent | Not started |
+| Intent Router | Completed |
+| Planner Agent | Completed |
+| Task Generator | Completed |
+| Team Allocator | Completed |
 | Checklist Generator | Not started |
 | Compliance Checker | Not started |
 | Safety Agent | Not started |
@@ -506,5 +508,29 @@ Main tasks:
 Current version can be considered:
 
 ```text
-Perception Agent v1.0
+Perception Agent v1.0 + Reason Agent v1.0
+```
+
+### 7.1 Member 2 Completed Work
+
+Member 2 has completed the core Reason-stage modules:
+
+```text
+agents/intent_router.py
+agents/planner_agent.py
+tools/task_generator.py
+tools/team_allocator.py
+tests/test_member2_reasoning.py
+```
+
+Run the local tests:
+
+```bash
+python -m unittest tests.test_member2_reasoning -v
+```
+
+Run the Reason-only demo:
+
+```bash
+python main.py --reason_only --user_input "帮我考虑 coding 的部分，生成四个人分工和项目计划"
 ```
