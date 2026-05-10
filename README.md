@@ -38,6 +38,29 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## Local Demo Console
+
+This branch also includes a Streamlit demo console for presenting the merged group project in a more visual way:
+
+```bash
+pip install -r requirements.txt
+python -m streamlit run demo_dashboard.py
+```
+
+The console runs the deterministic Reason and Action stages by default, so it can be shown without spending LLM calls. It is designed as a group presentation screen:
+
+- `Flow`: explains how Perceive, Context, Reason, Action, and Learn map to the assignment stages.
+- `Member 2 Plan`: highlights IntentRouter, PlannerAgent, TaskGenerator, and TeamAllocator.
+- `Generated Files`: shows ActionAgent outputs from `outputs/`.
+- `Logs`: shows observability evidence for the demo flow.
+- `Raw Data`: keeps the structured JSON outputs available for technical questions.
+
+For a Member 2 presentation, use this path:
+
+1. Select a 4, 5, or 6-member scenario in the sidebar.
+2. Click `Run Planning Demo`.
+3. Open `Member 2 Plan` and explain the generated intent, team allocation, coding task timeline, and how this structured plan feeds ActionAgent.
+
 ## Notes
 
 - `.env` should not be committed to GitHub.
